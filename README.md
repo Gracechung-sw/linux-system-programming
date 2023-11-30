@@ -21,6 +21,9 @@ After build this Makefile, run
 
 ```bash
 ./toy_system
+
+# or add '&' for running toy_system in background.
+./toy_system &
 ```
 
 ## Application Architecture
