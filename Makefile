@@ -1,59 +1,35 @@
-# 해당 프로젝트 빌드를 위한 make 파일을 작성한다. 
-# 파일 내용
-# 	- Makefile
-# 	- ui/gui.c, input.c
-# 	- web_server/webserver.c
-# 	- system/system_server.c
-# 빌드
-# 	- make
-# 빌드 결과물(실행 파일)
-# 	- toy_system
+TARGET = toy_system
 
-# 컴파일러 설정
+SYSTEM = ./system
+UI = ./ui
+WEB_SERVER = ./web_server
+
+INCLUDES = -I$(SYSTEM) -I$(UI) -I$(WEB_SERVER)
+
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c11
 
-# 디렉토리 설정
-SRC_DIR = ui system web_server
-BUILD_DIR = build
-BIN_DIR = bin
+objects = main.o system_server.o web_server.o input.o gui.o
 
-# 소스 파일 및 객체 파일 목록
-SRCS = $(wildcard $(addsuffix /*.c, $(SRC_DIR)))
-OBJS = $(patsubst %.c,$(BUILD_DIR)/%.o,$(notdir $(SRCS)))
+.PHONY: clean
 
-# 실행 파일 설정
-TARGET = $(BIN_DIR)/toy_system
+$(TARGET): $(objects)
+	$(CC) -o $(TARGET) $(objects)
 
-# 빌드 명령어
-all: $(BUILD_DIR) $(BIN_DIR) $(TARGET)
+main.o:  main.c
+	$(CC) -g $(INCLUDES) -c main.c
 
-# 빌드 디렉토리 및 실행 파일 디렉토리 생성
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
-$(BIN_DIR):
-	mkdir -p $(BIN_DIR)
+system_server.o: $(SYSTEM)/system_server.h $(SYSTEM)/system_server.c
+	$(CC) -g $(INCLUDES) -c ./system/system_server.c
 
-# 실행 파일 빌드
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^
+gui.o: $(UI)/gui.h $(UI)/gui.c
+	$(CC) -g $(INCLUDES) -c $(UI)/gui.c
 
-# 개별 소스 파일 컴파일
-$(BUILD_DIR)/%.o: ui/%.c system/%.c web_server/%.c system/system_server.h ui/gui.h ui/input.h web_server/web_server.h
-	$(CC) $(CFLAGS) -c $< -o $@
+input.o: $(UI)/input.h $(UI)/input.c
+	$(CC) -g $(INCLUDES) -c $(UI)/input.c
 
-# 각 소스 파일들의 의존성 설정
-$(BUILD_DIR)/%.o: ui/%.c | $(BUILD_DIR)
-	$(CC) $(CFLAGS) -I./system -I./ui -I./web_server -c $< -o $@
-$(BUILD_DIR)/%.o: system/%.c | $(BUILD_DIR)
-	$(CC) $(CFLAGS) -I./system -I./ui -I./web_server -c $< -o $@
-$(BUILD_DIR)/%.o: web_server/%.c | $(BUILD_DIR)
-	$(CC) $(CFLAGS) -I./system -I./ui -I./web_server -c $< -o $@
+web_server.o: $(WEB_SERVER)/web_server.h $(WEB_SERVER)/web_server.c
+	$(CC) -g $(INCLUDES) -c $(WEB_SERVER)/web_server.c
 
-
-
-# 정리 작업
 clean:
-	rm -rf $(BUILD_DIR) $(BIN_DIR)
-
-.PHONY: all clean
+	rm -rf *.o
+	rm -rf $(TARGET)
