@@ -10,6 +10,7 @@ docker run -it -v $(pwd):/root/code linux-system-programming bash
 ## How to Build
 
 ```bash
+make clean
 make
 ```
 
@@ -33,3 +34,12 @@ main server
 --> fork + exec --> web server(FE, BE)
 --> fork + exec --> GUI (Browser)
 --> fork + exec --> Input process
+
+## Signal 확인
+```bash
+./toy_system&
+
+ps
+
+kill -11 {input process id} # 그러면 input process의 signal handler가 callstack 을 출력
+```
